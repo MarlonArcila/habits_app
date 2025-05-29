@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -29,6 +30,7 @@ export default function HabitualPage() {
   const {
     habits,
     addHabit,
+    deleteHabit,
     toggleHabitCompletion,
     getHabitCompletion,
     calculateStreak,
@@ -61,6 +63,7 @@ export default function HabitualPage() {
           getHabitCompletion={getHabitCompletion}
           toggleHabitCompletion={toggleHabitCompletion}
           calculateStreak={calculateStreak}
+          deleteHabit={deleteHabit}
         />
         
         <PersonalizedTipsCard getAIInputData={getAIInputData} />

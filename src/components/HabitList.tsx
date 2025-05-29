@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Habit } from '@/lib/types';
@@ -11,6 +12,7 @@ interface HabitListProps {
   getHabitCompletion: (habitId: string, date: string) => boolean;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   calculateStreak: (habitId: string, todayString: string) => number;
+  deleteHabit: (habitId: string) => void;
 }
 
 export function HabitList({
@@ -19,6 +21,7 @@ export function HabitList({
   getHabitCompletion,
   toggleHabitCompletion,
   calculateStreak,
+  deleteHabit,
 }: HabitListProps) {
   if (!habits || habits.length === 0) {
     return (
@@ -43,6 +46,7 @@ export function HabitList({
             isCompletedToday={getHabitCompletion(habit.id, today)}
             currentStreak={calculateStreak(habit.id, today)}
             onToggleCompletion={() => toggleHabitCompletion(habit.id, today)}
+            onDeleteHabit={() => deleteHabit(habit.id)}
           />
         ))}
       </div>
