@@ -1,0 +1,215 @@
+
+"use client";
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { useHabits } from '@/hooks/useHabits';
+import type { Habit, HabitLog, ChartData } from '@/lib/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import MonthlyPerformanceChart from '@/components/dashboard/MonthlyPerformanceChart';
+import { format, getDaysInMonth, getMonth, getYear, setMonth, setYear, startOfMonth, parseISO, isBefore, isEqual, startOfDay } from 'date-fns';
+import { CalendarIcon, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 10 }, (_, i) => (currentYear - 5 + i).toString());
+const months = Array.from({ length: 12 }, (_, i) => ({ value: i.toString(), label: format(new Date(0, i), 'MMMM') }));
+
+export default function DashboardPage() {
+  const { habits, habitLogs, isLoading } = useHabits();
+  
+  const [selectedTab, setSelectedTab] = useState<string>("monthly");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedMonth, setSelectedMonth] = useState<number>(getMonth(new Date()));
+  const [selectedYear, setSelectedYear] = useState<number>(getYear(new Date()));
+  const [selectedYearForYearly, setSelectedYearForYearly] = useState<number>(getYear(new Date()));
+
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const monthlyChartData = useMemo((): ChartData[] => {
+    if (isLoading || habits.length === 0) return [];
+
+    const targetMonthDate = startOfMonth(setYear(setMonth(new Date(), selectedMonth), selectedYear));
+    const daysInSelectedMonth = getDaysInMonth(targetMonthDate);
+    const data: ChartData[] = [];
+
+    for (let day = 1; day <= daysInSelectedMonth; day++) {
+      const currentDate = new Date(selectedYear, selectedMonth, day);
+      const currentDateStr = format(currentDate, 'yyyy-MM-dd');
+      
+      const trackableHabits = habits.filter(habit => {
+        const habitCreationDate = startOfDay(parseISO(habit.createdAt));
+        return isEqual(habitCreationDate, startOfDay(currentDate)) || isBefore(habitCreationDate, startOfDay(currentDate));
+      });
+
+      if (trackableHabits.length === 0) {
+        data.push({ name: day.toString(), value: 0 });
+        continue;
+      }
+      
+      const completedCount = trackableHabits.filter(habit => {
+        return habitLogs.some(log => log.habitId === habit.id && log.date === currentDateStr && log.completed);
+      }).length;
+      
+      const completionPercentage = (completedCount / trackableHabits.length) * 100;
+      data.push({ name: day.toString(), value: Math.round(completionPercentage) });
+    }
+    return data;
+  }, [habits, habitLogs, selectedMonth, selectedYear, isLoading]);
+
+  const monthlyChartConfig = {
+    value: { label: "Completion %", color: "hsl(var(--chart-1))" },
+  };
+  
+  if (isLoading || !isClient) {
+    return (
+      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading Dashboard...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Please wait while we load your habit data.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  if (habits.length === 0 && !isLoading) {
+     return (
+      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>No Habits Tracked</AlertTitle>
+          <AlertDescription>
+            You haven't added any habits yet. Add some habits on the main page to see your performance here.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Habit Dashboard</h1>
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
+          <TabsTrigger value="daily">Daily</TabsTrigger>
+          <TabsTrigger value="monthly">Monthly</TabsTrigger>
+          <TabsTrigger value="yearly">Yearly</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="daily" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Daily Performance</CardTitle>
+              <CardDescription>View your habit completion for a specific day.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className="w-[280px] justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <p className="text-muted-foreground">Daily chart coming soon!</p>
+              {/* Placeholder for Daily Chart Component */}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="monthly" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Monthly Performance</CardTitle>
+              <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-2 items-center">
+                <Select
+                  value={selectedMonth.toString()}
+                  onValueChange={(value) => setSelectedMonth(parseInt(value))}
+                >
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Select Month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map(month => (
+                      <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedYear.toString()}
+                  onValueChange={(value) => setSelectedYear(parseInt(value))}
+                >
+                  <SelectTrigger className="w-full sm:w-[120px]">
+                    <SelectValue placeholder="Select Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {monthlyChartData.length > 0 ? (
+                <MonthlyPerformanceChart data={monthlyChartData} chartConfig={monthlyChartConfig} />
+              ) : (
+                <p className="text-muted-foreground">No data available for the selected month, or no habits were active.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="yearly" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Yearly Performance</CardTitle>
+              <CardDescription>Review your monthly habit completion averages for the selected year.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <Select
+                  value={selectedYearForYearly.toString()}
+                  onValueChange={(value) => setSelectedYearForYearly(parseInt(value))}
+                >
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Select Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              <p className="text-muted-foreground">Yearly chart coming soon!</p>
+              {/* Placeholder for Yearly Chart Component */}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

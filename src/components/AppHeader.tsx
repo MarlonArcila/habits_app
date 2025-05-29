@@ -1,4 +1,6 @@
-import { PlusCircle } from 'lucide-react';
+
+import { PlusCircle, LayoutDashboard } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 interface AppHeaderProps {
@@ -16,10 +18,18 @@ export function AppHeader({ onAddHabitClick }: AppHeaderProps) {
           </svg>
           <h1 className="text-2xl font-bold tracking-tight text-primary">Habitual</h1>
         </div>
-        <Button onClick={onAddHabitClick} size="sm">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Habit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard" passHref>
+            <Button variant="outline" size="sm">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Dashboard
+            </Button>
+          </Link>
+          <Button onClick={onAddHabitClick} size="sm">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Habit
+          </Button>
+        </div>
       </div>
     </header>
   );
