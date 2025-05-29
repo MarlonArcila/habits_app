@@ -54,7 +54,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
           margin={{
             top: 5,
             right: 10,
-            left: -20, 
+            left: 5, // Adjusted to ensure Y-axis labels are visible
             bottom: 0,
           }}
         >
@@ -64,7 +64,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            padding={{ left: 20, right: 20 }}
+            padding={{ left: 10, right: 10 }} // Adjusted padding
           />
           <YAxis
             tickFormatter={(value) => `${value}%`}
@@ -72,7 +72,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
             axisLine={false}
             tickMargin={8}
             domain={[0, 100]}
-            width={50} 
+            width={40} // Adjusted width for Y-axis labels
           />
           <ChartTooltip
             cursor={false}
@@ -82,10 +82,11 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
             dataKey="value" // Average completion percentage
             fill="hsl(var(--primary))"
             radius={[4, 4, 0, 0]} // Rounded top corners for bars
-            barSize={30} // Adjust bar width as needed
+            // barSize={30} // Consider removing for auto-sizing or make it smaller for mobile
           />
         </BarChart>
       </ResponsiveContainer>
     </ChartContainer>
   );
 }
+

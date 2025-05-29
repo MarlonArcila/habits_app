@@ -33,6 +33,11 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
     );
   }
 
+  // Determine X-axis interval based on data length to avoid overcrowding
+  // Show a tick roughly every 5-7 days depending on month length
+  const xAxisInterval = data.length > 15 ? Math.floor(data.length / 7) : 0;
+
+
   return (
     <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
       <ResponsiveContainer width="100%" height={300}>
@@ -41,7 +46,7 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
           margin={{
             top: 5,
             right: 10,
-            left: -20, // Adjusted to make Y-axis labels more visible
+            left: 5, // Adjusted to ensure Y-axis labels are visible
             bottom: 0,
           }}
         >
@@ -51,7 +56,8 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            padding={{ left: 20, right: 20 }} // Added padding for X-axis
+            padding={{ left: 10, right: 10 }} // Adjusted padding for X-axis
+            interval={xAxisInterval} // Show fewer ticks on X-axis
             // tickFormatter={(value) => value} // Day number
           />
           <YAxis
@@ -60,7 +66,7 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
             axisLine={false}
             tickMargin={8}
             domain={[0, 100]}
-            width={50} // Ensure enough space for labels like "100%"
+            width={40} // Adjusted width for Y-axis labels
           />
           <ChartTooltip
             cursor={false}
@@ -84,3 +90,4 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
     </ChartContainer>
   );
 }
+
