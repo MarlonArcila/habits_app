@@ -11,7 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import MonthlyPerformanceChart from '@/components/dashboard/MonthlyPerformanceChart';
-import { format, getDaysInMonth, getMonth, getYear, setMonth, setYear, startOfMonth, parseISO, isBefore, isEqual, startOfDay } from 'date-fns';
+import YearlyPerformanceChart from '@/components/dashboard/YearlyPerformanceChart';
+import DailyHabitStatus from '@/components/dashboard/DailyHabitStatus';
+import { format, getDaysInMonth, getMonth, getYear, setMonth, setYear, startOfMonth, parseISO, isBefore, isEqual, startOfDay, endOfMonth } from 'date-fns';
 import { CalendarIcon, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -20,7 +22,7 @@ const years = Array.from({ length: 10 }, (_, i) => (currentYear - 5 + i).toStrin
 const months = Array.from({ length: 12 }, (_, i) => ({ value: i.toString(), label: format(new Date(0, i), 'MMMM') }));
 
 export default function DashboardPage() {
-  const { habits, habitLogs, isLoading } = useHabits();
+  const { habits, habitLogs, isLoading, getHabitCompletion } = useHabits();
   
   const [selectedTab, setSelectedTab] = useState<string>("monthly");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -34,7 +36,7 @@ export default function DashboardPage() {
   }, []);
 
   const monthlyChartData = useMemo((): ChartData[] => {
-    if (isLoading || habits.length === 0) return [];
+    if (isLoading || habits.length === 0 || !isClient) return [];
 
     const targetMonthDate = startOfMonth(setYear(setMonth(new Date(), selectedMonth), selectedYear));
     const daysInSelectedMonth = getDaysInMonth(targetMonthDate);
@@ -62,11 +64,62 @@ export default function DashboardPage() {
       data.push({ name: day.toString(), value: Math.round(completionPercentage) });
     }
     return data;
-  }, [habits, habitLogs, selectedMonth, selectedYear, isLoading]);
+  }, [habits, habitLogs, selectedMonth, selectedYear, isLoading, isClient]);
 
-  const monthlyChartConfig = {
+  const yearlyChartData = useMemo((): ChartData[] => {
+    if (isLoading || habits.length === 0 || !isClient) return [];
+    const data: ChartData[] = [];
+
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      const monthDate = startOfMonth(new Date(selectedYearForYearly, monthIndex));
+      const monthName = format(monthDate, 'MMM');
+      const daysInMonth = getDaysInMonth(monthDate);
+      
+      let totalTrackableHabitDaysInMonth = 0;
+      let totalCompletedHabitDaysInMonth = 0;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const currentDate = new Date(selectedYearForYearly, monthIndex, day);
+        const currentDateStr = format(currentDate, 'yyyy-MM-dd');
+
+        const trackableHabitsForDay = habits.filter(habit => {
+          const habitCreationDate = startOfDay(parseISO(habit.createdAt));
+          return isEqual(habitCreationDate, startOfDay(currentDate)) || isBefore(habitCreationDate, startOfDay(currentDate));
+        });
+
+        if (trackableHabitsForDay.length > 0) {
+          totalTrackableHabitDaysInMonth += trackableHabitsForDay.length;
+          const completedCountForDay = trackableHabitsForDay.filter(habit => 
+            habitLogs.some(log => log.habitId === habit.id && log.date === currentDateStr && log.completed)
+          ).length;
+          totalCompletedHabitDaysInMonth += completedCountForDay;
+        }
+      }
+      
+      const averageCompletionPercentage = totalTrackableHabitDaysInMonth > 0 
+        ? Math.round((totalCompletedHabitDaysInMonth / totalTrackableHabitDaysInMonth) * 100) 
+        : 0;
+      
+      data.push({ name: monthName, value: averageCompletionPercentage });
+    }
+    return data;
+  }, [habits, habitLogs, selectedYearForYearly, isLoading, isClient]);
+
+  const performanceChartConfig = {
     value: { label: "Completion %", color: "hsl(var(--chart-1))" },
   };
+
+  const dailyHabitsForSelectedDate = useMemo(() => {
+    if (!selectedDate || isLoading || !isClient) return [];
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    return habits.filter(habit => {
+      const habitCreationDate = startOfDay(parseISO(habit.createdAt));
+      return isEqual(habitCreationDate, startOfDay(selectedDate)) || isBefore(habitCreationDate, startOfDay(selectedDate));
+    }).map(habit => ({
+      ...habit,
+      isCompleted: getHabitCompletion(habit.id, dateStr)
+    }));
+  }, [selectedDate, habits, getHabitCompletion, isLoading, isClient]);
   
   if (isLoading || !isClient) {
     return (
@@ -119,7 +172,7 @@ export default function DashboardPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className="w-[280px] justify-start text-left font-normal"
+                    className="w-full sm:w-[280px] justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
@@ -131,11 +184,17 @@ export default function DashboardPage() {
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     initialFocus
+                    disabled={(date) => date > new Date() || date < new Date("2000-01-01")}
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-muted-foreground">Daily chart coming soon!</p>
-              {/* Placeholder for Daily Chart Component */}
+              {selectedDate && dailyHabitsForSelectedDate.length > 0 ? (
+                <DailyHabitStatus habitsForDay={dailyHabitsForSelectedDate} selectedDate={selectedDate} />
+              ) : (
+                <p className="text-muted-foreground">
+                  {selectedDate ? "No habits were active on this day or no data." : "Please select a date."}
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -176,7 +235,7 @@ export default function DashboardPage() {
                 </Select>
               </div>
               {monthlyChartData.length > 0 ? (
-                <MonthlyPerformanceChart data={monthlyChartData} chartConfig={monthlyChartConfig} />
+                <MonthlyPerformanceChart data={monthlyChartData} chartConfig={performanceChartConfig} />
               ) : (
                 <p className="text-muted-foreground">No data available for the selected month, or no habits were active.</p>
               )}
@@ -204,8 +263,11 @@ export default function DashboardPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              <p className="text-muted-foreground">Yearly chart coming soon!</p>
-              {/* Placeholder for Yearly Chart Component */}
+              {yearlyChartData.length > 0 ? (
+                 <YearlyPerformanceChart data={yearlyChartData} chartConfig={performanceChartConfig} />
+              ) : (
+                 <p className="text-muted-foreground">No data available for the selected year or no habits were active.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
