@@ -1,3 +1,4 @@
+
 // src/ai/flows/personalized-habit-tips.ts
 'use server';
 /**
@@ -17,7 +18,7 @@ const PersonalizedHabitTipsInputSchema = z.object({
 export type PersonalizedHabitTipsInput = z.infer<typeof PersonalizedHabitTipsInputSchema>;
 
 const PersonalizedHabitTipsOutputSchema = z.object({
-  tips: z.string().describe('Personalized tips for the user to improve consistency with their habits.'),
+  tips: z.string().describe('Personalized tips for the user to improve consistency with their habits, formatted as a single string with each tip as a new paragraph.'),
 });
 export type PersonalizedHabitTipsOutput = z.infer<typeof PersonalizedHabitTipsOutputSchema>;
 
@@ -29,11 +30,38 @@ const personalizedHabitTipsPrompt = ai.definePrompt({
   name: 'personalizedHabitTipsPrompt',
   input: {schema: PersonalizedHabitTipsInputSchema},
   output: {schema: PersonalizedHabitTipsOutputSchema},
-  prompt: `You are an AI habit coach. A user will provide their habit tracking data and goals. Based on this information, you will provide personalized tips to help them improve consistency with their habits.
+  prompt: `You are a friendly and encouraging AI habit coach.
+Analyze the user's habit tracking data and any stated goals to provide 2-3 concise, actionable, and personalized tips.
+Focus on helping them improve consistency, overcome challenges, and stay motivated.
+The tips should be formatted as a single string, with each tip as a new paragraph.
 
-Habit Data and Goals: {{{habitData}}}
+User's Habit Data and Goals:
+\`\`\`json
+{{{habitData}}}
+\`\`\`
 
+Based on the data above, provide your personalized tips below:
 Tips:`,
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ],
+  },
 });
 
 const personalizedHabitTipsFlow = ai.defineFlow(
@@ -43,7 +71,12 @@ const personalizedHabitTipsFlow = ai.defineFlow(
     outputSchema: PersonalizedHabitTipsOutputSchema,
   },
   async input => {
-    const {output} = await personalizedHabitTipsPrompt(input);
-    return output!;
+    const result = await personalizedHabitTipsPrompt(input);
+    if (!result.output) {
+      console.error('Personalized tips prompt did not return an output.');
+      throw new Error('Failed to generate tips because the AI model returned no output.');
+    }
+    return result.output;
   }
 );
+
