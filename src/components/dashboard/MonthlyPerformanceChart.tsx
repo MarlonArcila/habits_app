@@ -33,9 +33,15 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
     );
   }
 
-  // Determine X-axis interval based on data length to avoid overcrowding
-  // Show a tick roughly every 5-7 days depending on month length
-  const xAxisInterval = data.length > 15 ? Math.floor(data.length / 7) : 0;
+  let xAxisInterval = 0;
+  const numDays = data.length;
+  if (numDays > 25) { 
+    xAxisInterval = 5; 
+  } else if (numDays > 15) { 
+    xAxisInterval = 3; 
+  } else if (numDays > 7) { 
+    xAxisInterval = 1; 
+  }
 
 
   return (
@@ -46,36 +52,35 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
           margin={{
             top: 5,
             right: 10,
-            left: 5, // Adjusted to ensure Y-axis labels are visible
+            left: 0, 
             bottom: 0,
           }}
         >
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
-            dataKey="name" // 'name' here refers to the day of the month
+            dataKey="name" 
             tickLine={false}
             axisLine={false}
-            tickMargin={8}
-            padding={{ left: 10, right: 10 }} // Adjusted padding for X-axis
-            interval={xAxisInterval} // Show fewer ticks on X-axis
-            // tickFormatter={(value) => value} // Day number
+            tickMargin={5}
+            padding={{ left: 10, right: 10 }} 
+            interval={xAxisInterval} 
           />
           <YAxis
             tickFormatter={(value) => `${value}%`}
             tickLine={false}
             axisLine={false}
-            tickMargin={8}
+            tickMargin={5}
             domain={[0, 100]}
-            width={40} // Adjusted width for Y-axis labels
+            width={35} 
           />
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent indicator="line" />}
           />
           <Line
-            dataKey="value" // 'value' here refers to completion percentage
+            dataKey="value" 
             type="monotone"
-            stroke={`hsl(var(--primary))`} // Use primary color from theme
+            stroke={`hsl(var(--primary))`} 
             strokeWidth={2}
             dot={{
               fill: `hsl(var(--primary))`,

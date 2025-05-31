@@ -14,12 +14,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from 'lucide-react';
 
 interface YearlyPerformanceChartProps {
-  data: ChartData[]; // Expects { name: "MonthAbbr", value: percentage }
+  data: ChartData[]; 
   chartConfig: ChartConfig;
 }
 
 export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerformanceChartProps) {
-  if (!data || data.length === 0 || data.every(d => d.value === 0 && d.name === undefined) ) { // Check if all data points are essentially empty
+  if (!data || data.length === 0 || data.every(d => d.value === 0 && d.name === undefined) ) { 
     return (
       <Alert>
         <Info className="h-4 w-4" />
@@ -31,7 +31,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
     );
   }
 
-  const validData = data.filter(d => d.name !== undefined); // Filter out undefined month names which might occur if no habits active at all
+  const validData = data.filter(d => d.name !== undefined); 
 
   if (validData.length === 0) {
      return (
@@ -54,35 +54,35 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
           margin={{
             top: 5,
             right: 10,
-            left: 5, // Adjusted to ensure Y-axis labels are visible
+            left: 0, 
             bottom: 0,
           }}
         >
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
-            dataKey="name" // Month abbreviation (e.g., Jan, Feb)
+            dataKey="name" 
             tickLine={false}
             axisLine={false}
-            tickMargin={8}
-            padding={{ left: 10, right: 10 }} // Adjusted padding
+            tickMargin={5}
+            padding={{ left: 10, right: 10 }} 
           />
           <YAxis
             tickFormatter={(value) => `${value}%`}
             tickLine={false}
             axisLine={false}
-            tickMargin={8}
+            tickMargin={5}
             domain={[0, 100]}
-            width={40} // Adjusted width for Y-axis labels
+            width={35} 
           />
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent indicator="dashed" />}
           />
           <Bar
-            dataKey="value" // Average completion percentage
+            dataKey="value" 
             fill="hsl(var(--primary))"
-            radius={[4, 4, 0, 0]} // Rounded top corners for bars
-            // barSize={30} // Consider removing for auto-sizing or make it smaller for mobile
+            radius={[4, 4, 0, 0]} 
+            maxBarSize={35}
           />
         </BarChart>
       </ResponsiveContainer>
