@@ -206,12 +206,12 @@ export default function DashboardPage() {
               <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="flex flex-col gap-2">
                 <Select
                   value={selectedMonth.toString()}
                   onValueChange={(value) => setSelectedMonth(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full sm:w-[280px]">
                     <SelectValue placeholder="Select Month" />
                   </SelectTrigger>
                   <SelectContent>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                   value={selectedYear.toString()}
                   onValueChange={(value) => setSelectedYear(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full sm:w-[280px]">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                   value={selectedYearForYearly.toString()}
                   onValueChange={(value) => setSelectedYearForYearly(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[280px]">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -275,6 +275,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-
-    
