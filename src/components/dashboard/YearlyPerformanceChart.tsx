@@ -48,7 +48,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
 
   return (
     <ChartContainer config={chartConfig} className="min-h-[300px] w-full overflow-x-auto">
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={300} minWidth={0}>
         <BarChart
           data={validData}
           margin={{

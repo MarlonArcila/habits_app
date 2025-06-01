@@ -114,13 +114,6 @@ body {
   }
 }
 
-/* Force consistent container widths across all tabs */
-.habit-dashboard .monthly-performance,
-.habit-dashboard .yearly-performance {
-  max-width: 600px !important;
-  margin: 0 auto !important;
-}
-
 /* 
   The following CSS rules for 'select' tags are generally not effective 
   for ShadCN 'Select' components as they are not native HTML select elements.
