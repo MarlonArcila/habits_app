@@ -152,7 +152,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+    <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6 habit-dashboard">
       <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Habit Dashboard</h1>
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
@@ -200,7 +200,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="monthly" className="mt-4">
-          <Card className="w-full sm:max-w-sm">
+          <Card className="w-full monthly-performance">
             <CardHeader>
               <CardTitle>Monthly Performance</CardTitle>
               <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="yearly" className="mt-4">
-          <Card className="w-full sm:max-w-sm">
+          <Card className="w-full yearly-performance">
             <CardHeader>
               <CardTitle>Yearly Performance</CardTitle>
               <CardDescription>Review your monthly habit completion averages for the selected year.</CardDescription>
