@@ -200,7 +200,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="monthly" className="mt-4">
-          <Card>
+          <Card className="md:max-w-2xl">
             <CardHeader>
               <CardTitle>Monthly Performance</CardTitle>
               <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="yearly" className="mt-4">
-          <Card>
+          <Card className="md:max-w-2xl">
             <CardHeader>
               <CardTitle>Yearly Performance</CardTitle>
               <CardDescription>Review your monthly habit completion averages for the selected year.</CardDescription>
