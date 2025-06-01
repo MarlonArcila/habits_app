@@ -24,7 +24,7 @@ const months = Array.from({ length: 12 }, (_, i) => ({ value: i.toString(), labe
 export default function DashboardPage() {
   const { habits, habitLogs, isLoading, getHabitCompletion } = useHabits();
   
-  const [selectedTab, setSelectedTab] = useState<string>("monthly");
+  const [selectedTab, setSelectedTab] = useState<string>("daily");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedMonth, setSelectedMonth] = useState<number>(getMonth(new Date()));
   const [selectedYear, setSelectedYear] = useState<number>(getYear(new Date()));
@@ -200,7 +200,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="monthly" className="mt-4">
-          <Card className="monthly-performance">
+          <Card className="monthly-performance w-full">
             <CardHeader>
               <CardTitle>Monthly Performance</CardTitle>
               <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
         </TabsContent>
         
         <TabsContent value="yearly" className="mt-4">
-          <Card className="yearly-performance">
+          <Card className="yearly-performance w-full">
             <CardHeader>
               <CardTitle>Yearly Performance</CardTitle>
               <CardDescription>Review your monthly habit completion averages for the selected year.</CardDescription>

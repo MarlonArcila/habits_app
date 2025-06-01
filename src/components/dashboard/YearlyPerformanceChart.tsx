@@ -67,6 +67,7 @@ export default function YearlyPerformanceChart({ data, chartConfig }: YearlyPerf
             padding={{ left: 10, right: 10 }} 
           />
           <YAxis
+            dataKey="value"
             tickFormatter={(value) => `${value}%`}
             tickLine={false}
             axisLine={false}

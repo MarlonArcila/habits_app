@@ -66,6 +66,7 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
             interval={xAxisInterval} 
           />
           <YAxis
+            dataKey="value"
             tickFormatter={(value) => `${value}%`}
             tickLine={false}
             axisLine={false}
