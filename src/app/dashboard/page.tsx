@@ -206,12 +206,12 @@ export default function DashboardPage() {
               <CardDescription>Track your daily habit completion percentage over the selected month.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col gap-2">
+              <div className="w-full sm:w-[280px] space-y-2">
                 <Select
                   value={selectedMonth.toString()}
                   onValueChange={(value) => setSelectedMonth(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full sm:w-[280px]">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Month" />
                   </SelectTrigger>
                   <SelectContent>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                   value={selectedYear.toString()}
                   onValueChange={(value) => setSelectedYear(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full sm:w-[280px]">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -250,19 +250,21 @@ export default function DashboardPage() {
               <CardDescription>Review your monthly habit completion averages for the selected year.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <Select
-                  value={selectedYearForYearly.toString()}
-                  onValueChange={(value) => setSelectedYearForYearly(parseInt(value))}
-                >
-                  <SelectTrigger className="w-full sm:w-[280px]">
-                    <SelectValue placeholder="Select Year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map(year => (
-                      <SelectItem key={year} value={year}>{year}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+               <div className="w-full sm:w-[280px]">
+                 <Select
+                    value={selectedYearForYearly.toString()}
+                    onValueChange={(value) => setSelectedYearForYearly(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map(year => (
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               {yearlyChartData.length > 0 ? (
                  <YearlyPerformanceChart data={yearlyChartData} chartConfig={performanceChartConfig} />
               ) : (
@@ -275,3 +277,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
