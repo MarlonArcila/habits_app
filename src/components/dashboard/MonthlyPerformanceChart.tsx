@@ -45,7 +45,7 @@ export default function MonthlyPerformanceChart({ data, chartConfig }: MonthlyPe
 
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+    <ChartContainer config={chartConfig} className="min-h-[300px] w-full overflow-x-auto">
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data}
