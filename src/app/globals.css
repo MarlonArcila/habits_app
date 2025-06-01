@@ -112,3 +112,23 @@ body {
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Force consistent container widths across all tabs */
+.habit-dashboard .monthly-performance,
+.habit-dashboard .yearly-performance {
+  max-width: 600px !important;
+  margin: 0 auto !important;
+}
+
+/* Fix select input widths */
+.habit-dashboard select {
+  width: 180px !important;
+  max-width: 100%;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .habit-dashboard select {
+    width: 100% !important;
+  }
+}
